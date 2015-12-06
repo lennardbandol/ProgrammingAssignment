@@ -1,21 +1,16 @@
 ArrayList<Steam> data = new ArrayList<Steam>();
-ArrayList<Steam> sorted = new ArrayList<Steam>();
-ArrayList<Steam> temp = new ArrayList<Steam>();
-int[] asc_index = new int[data.size()];
-
 void setup()
 {
   size( 800, 600 );
   smooth();
   loadData();
-  drawTrendLineGraph(data, "Steam Graph");
 }
 
 int which = 0;
 
 //menu
 void draw()
-{
+{  
   if (option == 0)
   {
     drawmenu();
@@ -34,14 +29,27 @@ void draw()
   }
 }
 
+//loading the data
+void loadData()
+{
+  String[] lines = loadStrings("SteamData.csv");
+  for (int i = 0; i <lines.length; i++)
+  {
+    println(lines);
+    Steam steam = new Steam(lines[i]);
+    data.add(steam);
+  }
+}
+
 //added startup
 int option = 0;
+
 void drawmenu()
 {
   background(255);
   textAlign(CENTER, CENTER);
   //option 1
-  fill(color(200, 0, 0));
+  fill(color(50));
   rect(width*0.25, height*0.1, width*0.50, 100, 10);
   fill(180);
   textSize(40);
@@ -58,7 +66,7 @@ void drawmenu()
   rect(width*0.25, height*0.5, width*0.50, 100, 10);
   fill(180);
   textSize(40);
-  text("Statistics", width * 0.5f, height*0.5+50);
+  text("Trend Graph", width * 0.5f, height*0.5+50);
 
   //option 3
   fill(color(200, 0, 0));
@@ -67,12 +75,14 @@ void drawmenu()
   textSize(40);
   text("List of Data", width * 0.5f, height*0.7+50);
 
+   //detects the mouse cursor
   println(mouseY);
   if (mouseX >= width*0.25 && mouseX <= width*0.50 )
   {
     //option 1
     if (mouseY >= height*0.3 && mouseY <= (height*0.3)+100 )
     {
+      
       fill(color(255, 0, 0));
       rect(width*0.225, height*0.275, width*0.55, 130, 10);
       fill(180);
@@ -86,11 +96,12 @@ void drawmenu()
     //option 2
     if (mouseY >= height*0.5 && mouseY <= (height*0.5)+100 )
     {
+      
       fill(color(255, 0, 0));
       rect(width*0.225, height*0.475, width*0.55, 130, 10);
       fill(180);
       textSize(50);
-      text("Statistics", width * 0.5f, height*0.5+50);
+      text("Trend Graph", width * 0.5f, height*0.5+50);
       if (mousePressed)
       {
         option = 2;
@@ -118,17 +129,17 @@ void backtomenu()
 {
   textAlign(CENTER, CENTER);
   //exit option
-  fill(color(200, 0, 0));
+  fill(0);
   rect(width*0.9-10, 7.5, width*0.1, height*0.075, 10);
   fill(255);
   textSize(20);
   text("menu", width*0.95-10, width*0.022+10);
   if (mouseX >= width*0.9-10 && mouseY <= height*0.075+10 && mouseY >= 10 )
   {
-    fill(color(255, 0, 0));
+    fill(120);
     rect(width*0.9-12.5, 5, width*0.1+5, height*0.075+5, 10);
     fill(255);
-    textSize(20);
+    textSize(23);
     text("menu", width*0.95-10, width*0.022+10);
     if (mousePressed)
     {
@@ -137,34 +148,12 @@ void backtomenu()
   }
 }
 
-//loading the data
-void loadData()
-{
-  String[] lines = loadStrings("SteamData.csv");
-  for (int i = 0; i <lines.length; i++)
-  {
-    println(lines);
-    Steam steam = new Steam(lines[i]);
-    data.add(steam);
-    sorted.add(steam);
-  }
-  for ( int i =0; i < sorted.size (); i++)
-  {
-    println(sorted.get(i).players);
-  }
-}
-int on = 0;
-float xspeed=0;
-float yspeed=0;
 
 //draw bargraph
+int chosen = 100;
+
 void drawBarGraph()
 {
-  background(255);  
-  backtomenu();
-  //data store
-  float gap = (float) width / data.size();
-
   //finding the highest value in the data
   float max = Float.MIN_VALUE;
   for (Steam steam : data)
@@ -174,17 +163,29 @@ void drawBarGraph()
       max = steam.players;
     }
   }
-
+  background(255); 
   //scale factor 
   float scaleFactor = (float) height/max;
-  for ( int i = 0; i < data.size (); i++)
+  //data store
+  float gap = (float) width / data.size();
+  
+  for( int i = 0; i < data.size(); i++ )
+  {
+    stroke(0);
+    strokeWeight(1);
+    line(0,i*gap,width,i*gap);
+    line(i*gap,0,i*gap,height);
+  }
+   
+  backtomenu();
+  for ( int i = 0; i < data.size(); i++)
   {
     //bar graph
-    float x = i * gap;
-    float y = i * gap;
-
+    float x = i * gap; 
+    //prints the data
     Steam steam = data.get(i);
     fill(data.get(i).colour);
+    stroke(0);
     rect(x, height, gap, - (steam.players * scaleFactor));
   }
 
@@ -192,6 +193,8 @@ void drawBarGraph()
   int index = (int) Math.round((mouseX/gap-0.3));
   int currentindex = index;
   float currentY = map(mouseY, height, 0, height, max);
+  float border = width * 0.05f;
+  float textY = (border * 0.5f  ); 
 
   if ( index >= 49 )
   {
@@ -200,24 +203,11 @@ void drawBarGraph()
   {
     if ( currentY <= data.get(index).players )
     {
-
-      yspeed+=1;
-      if (yspeed >= 90)
-      {
-        yspeed = 90;
-      }
-      if (currentindex != index)
-      {
-        yspeed = 0;
-      }
-
       //printing out the data 
       println(index);
       textAlign(CENTER, CENTER);   
-      float border = width * 0.05f;
-      float textY = (border * 0.5f  ); 
-      fill(color(0, 0, 180));
-      rect(width*0.3, 50, width*0.4, yspeed, 10);
+      fill(data.get(index).colour);
+      rect(width*0.3, 50, width*0.4, 90, 10);
       fill(255);
       textSize(30);
       text(data.get(index).game, width * 0.5f, textY + 50);
@@ -226,7 +216,10 @@ void drawBarGraph()
       fill(data.get(index).colour);
       float x = index * gap;
       rect(x-gap*0.25, height, gap+gap*0.5, - (data.get(index).players * scaleFactor));
-      println(yspeed);
+      strokeWeight(2);
+      stroke(data.get(index).colour);
+      line(width*0.5,140,x+gap*0.5,height - data.get(index).players*scaleFactor * 0.5 );
+      noStroke();
     }
   }
 }
@@ -234,43 +227,57 @@ void drawBarGraph()
 //draw TrendGraphLine
 void drawTrendLineGraph(ArrayList<Steam> data, String title)
 {
-  background(0);
-  backtomenu();
   float border = width * 0.05f; 
+  //load background image
+  background(255);
+  //menu option
+  backtomenu();
+  
+  //displays the header
   textAlign(CENTER, CENTER);   
   float textY = (border * 0.5f); 
-  fill(255);
-  text("Steam Graph", width * 0.5f, textY);
-
+  fill(0);
+  textSize(30);
+  text("Trend Graph", width * 0.5f, textY);
+ 
+  //draws the horizonal/vertical axis
   drawAxis(border);   
   float windowRange = (width - (border * 2.0f));
-  float dataRange = 1400000;      
-  float lineWidth =  windowRange / (float) (data.size() - 1) ;
-
-  stroke(180);
+  float dataRange = 1100000;      
+  
+  //prints out the graph
   for (int i = 1; i < data.size(); i ++)
   {
     float x1 = map(i - 1, 0, data.size(), border, border + windowRange);
     float x2 = map(i, 0, data.size(), border, border + windowRange);
     float y1 = map(data.get(i - 1).players, 0, dataRange, height - border, (height - border) - windowRange);
     float y2 = map(data.get(i).players, 0, dataRange, height - border, (height - border) - windowRange);
-    fill(255);
-    ellipse(x1, y1, 5, 5);
+    //draw the lines
+    strokeWeight(2);
+    stroke(data.get(i).colour);
     line(x1, y1, x2, y2);
-    if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 )
+     //draw out the ellipse
+    fill(data.get(i).colour);
+    ellipse(x1, y1, 5, 5);
+    if (mouseX >= x1 && mouseX <= x2)
     {
-      text(data.get(i).game, width*0.5, height*0.25);
-      text(data.get(i).players, width*0.5, height*0.35);
-      fill(color(255, 0, 0));
+      fill(data.get(i).colour);
+      noStroke();
+      rect(width*0.25,height*0.075,width*0.5,height*0.2,10);
+      fill(255);
+      textSize(25);
+      text(data.get(i-1).game + "   -   " + data.get(i-1).players , width*0.5, height*0.175);
+      fill(data.get(i).colour);
       ellipse(x1, y1, 15, 15);
     }
   }
+  noStroke();
 }
 
 // draw axis for trend graph
 void drawAxis(float border)
 {
-  stroke(200, 200, 200);
+  stroke(0);
   fill(200, 200, 200);   
   line(border, height - border, width - border, height - border);
   line(border, border, border, height - border);
@@ -346,62 +353,6 @@ void statistics()
   }
 }
 
-//find popular
-void popular()
-{
-  float max = Float.MIN_VALUE;
-  for (Steam steam : data)
-  {
-    if (steam.players > max)
-    {
-      max = steam.players;
-    }
-  }
-}
-
-//find the least popular
-void unpopular()
-{
-  float lowest = Float.MIN_VALUE;
-  for (Steam steam : data)
-  {
-    if (steam.players < lowest)
-    {
-      lowest = steam.players;
-    }
-  }
-}
-
-//data list
-void datalist()
-{
-  background(255);
-  textAlign(CENTER, CENTER);
-  backtomenu();
-
-  float gap = ( height / 10 );
-  int page = 0;
-  int current = 1;
-  if (mousePressed)
-  {
-    page++;
-    for ( int i = current; i < current+9; i++ )
-    {
-      fill(255);
-      rect(0, i*(gap), width*0.5, gap);
-      rect(width*0.5, i*(gap), width*0.5, gap);
-      fill(0);
-      text(data.get(i-1).game, width*0.25, i*gap+25);
-      text(data.get(i-1).players, width*0.75, i*gap+25);
-    }
-  }
-  fill(255);
-  rect(0, 0, width, gap);
-  fill(0);
-  text("Game", width*0.15, 25);
-  text("Peaked Players", width*0.35, 25);
-}
-
 int pageoption = 0;
 int checker = 11;
 
@@ -444,9 +395,11 @@ void showdata()
   background(255);
   float gap = ( height / 10 );
   int i, j;
+  //loop to display the text
   for ( i = 1+ (pageoption*9), j = 0; i < (pageoption*9)+checker; i++, j++)
   {
-    fill(0);
+    stroke(0);
+    fill(data.get(i-1).colour);
     rect(0, j*(gap), width*0.30, gap);
     rect(width*0.30, j*(gap), width*0.30, gap); 
     rect(width*0.60, j*(gap), width*0.40, gap); 
@@ -488,7 +441,7 @@ void showdata()
     rect(width*0.30,(index-1)*gap, width*0.30, gap); 
     rect(width*0.60,(index-1)*gap, width*0.40, gap);
     textSize(20);
-    fill(0);
+    fill(255);
     text(data.get((pageoption*9)+index-1).game, width*0.15, (index-1)*gap+25);
     text(data.get((pageoption*9)+index-1).players, width*0.45, (index-1)*gap+25);
     //links
