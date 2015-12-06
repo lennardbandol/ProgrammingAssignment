@@ -12,6 +12,8 @@ void setup()
 }
 
 int which = 0;
+
+//menu
 void draw()
 {
   if (option == 0)
@@ -24,7 +26,7 @@ void draw()
   }
   if (option == 2 )
   {
-    statistics();
+    drawTrendLineGraph(data, "title");
   }
   if (option ==3)
   {
@@ -32,7 +34,109 @@ void draw()
   }
 }
 
-//load data
+//added startup
+int option = 0;
+void drawmenu()
+{
+  background(255);
+  textAlign(CENTER, CENTER);
+  //option 1
+  fill(color(200, 0, 0));
+  rect(width*0.25, height*0.1, width*0.50, 100, 10);
+  fill(180);
+  textSize(40);
+  text("Menu", width * 0.5f, height*0.1+50);
+  //option 1
+  fill(color(200, 0, 0));
+  rect(width*0.25, height*0.3, width*0.50, 100, 10);
+  fill(180);
+  textSize(40);
+  text("Bar Graph", width * 0.5f, height*0.3+50);
+
+  //option 2
+  fill(color(200, 0, 0));
+  rect(width*0.25, height*0.5, width*0.50, 100, 10);
+  fill(180);
+  textSize(40);
+  text("Statistics", width * 0.5f, height*0.5+50);
+
+  //option 3
+  fill(color(200, 0, 0));
+  rect(width*0.25, height*0.7, width*0.50, 100, 10);
+  fill(180);
+  textSize(40);
+  text("List of Data", width * 0.5f, height*0.7+50);
+
+  println(mouseY);
+  if (mouseX >= width*0.25 && mouseX <= width*0.50 )
+  {
+    //option 1
+    if (mouseY >= height*0.3 && mouseY <= (height*0.3)+100 )
+    {
+      fill(color(255, 0, 0));
+      rect(width*0.225, height*0.275, width*0.55, 130, 10);
+      fill(180);
+      textSize(50);
+      text("Bar Graph", width * 0.5f, height*0.3+50);
+      if (mousePressed)
+      {
+        option = 1;
+      }
+    }
+    //option 2
+    if (mouseY >= height*0.5 && mouseY <= (height*0.5)+100 )
+    {
+      fill(color(255, 0, 0));
+      rect(width*0.225, height*0.475, width*0.55, 130, 10);
+      fill(180);
+      textSize(50);
+      text("Statistics", width * 0.5f, height*0.5+50);
+      if (mousePressed)
+      {
+        option = 2;
+      }
+    }
+    //option 3
+    if (mouseY >= height*0.7 && mouseY <= (height*0.7)+100 )
+    {
+      fill(color(255, 0, 0));
+      rect(width*0.225, height*0.675, width*0.55, 130, 10);
+      fill(180);
+      textSize(50);
+      text("List of data", width * 0.5f, height*0.7+50);
+      if (mousePressed)
+      {
+        option = 3;
+      }
+    }
+  }
+}
+
+//back to menu 
+void backtomenu()
+{
+  textAlign(CENTER, CENTER);
+  //exit option
+  fill(color(200, 0, 0));
+  rect(width*0.9-15, 15, width*0.1, height*0.075, 10);
+  fill(255);
+  textSize(20);
+  text("menu", width*0.95-15, width*0.022+16);
+  if (mouseX >= width*0.9-15 && mouseY <= height*0.075+15 && mouseY >= 10 )
+  {
+    fill(color(255, 0, 0));
+    rect(width*0.9-17.5, 10, width*0.1+7.5, height*0.075+7.5, 10);
+    fill(255);
+    textSize(20);
+    text("menu", width*0.95-15, width*0.022+16);
+    if (mousePressed)
+    {
+      option = 0;
+    }
+  }
+}
+
+//loading the data
 void loadData()
 {
   String[] lines = loadStrings("SteamData.csv");
@@ -48,6 +152,9 @@ void loadData()
     println(sorted.get(i).players);
   }
 }
+int on = 0;
+float xspeed=0;
+float yspeed=0;
 
 //draw bargraph
 void drawBarGraph()
@@ -56,6 +163,8 @@ void drawBarGraph()
   backtomenu();
   //data store
   float gap = (float) width / data.size();
+
+  //finding the highest value in the data
   float max = Float.MIN_VALUE;
   for (Steam steam : data)
   {
@@ -65,35 +174,59 @@ void drawBarGraph()
     }
   }
 
+  //scale factor 
   float scaleFactor = (float) height/max;
   for ( int i = 0; i < data.size (); i++)
   {
-    Steam steam = data.get(i);
-    fill(color(0, 0, 100));
+    //bar graph
     float x = i * gap;
+    float y = i * gap;
+
+    Steam steam = data.get(i);
+    fill(data.get(i).colour);
     rect(x, height, gap, - (steam.players * scaleFactor));
   }
 
+  //finding the currect index for the bar graph
   int index = (int) Math.round((mouseX/gap-0.3));
+  int currentindex = index;
+  float currentY = map(mouseY, height, 0, height, max);
+
   if ( index >= 49 )
   {
     index = 49;
   } else
   {
-    println(index);
-    textAlign(CENTER, CENTER);   
-    float border = width * 0.05f;
-    float textY = (border * 0.5f  ); 
-    fill(color(0, 0, 180));
-    rect(width*0.3, 0, width*0.4, 90);
-    fill(255);
-    textSize(30);
-    text(data.get(index).game, width * 0.5f, textY);
-    textSize(20);
-    text("Highest Peak of Players:" + data.get(index).players, width * 0.5f, border * 1.5f);
-    fill(color(0, 0, 255));
-    float x = index * gap;
-    rect(x-gap*0.25, height, gap+gap*0.5, - (data.get(index).players * scaleFactor));
+    if ( currentY <= data.get(index).players )
+    {
+
+      yspeed+=1;
+      if (yspeed >= 90)
+      {
+        yspeed = 90;
+      }
+      if (currentindex != index)
+      {
+        yspeed = 0;
+      }
+
+      //printing out the data 
+      println(index);
+      textAlign(CENTER, CENTER);   
+      float border = width * 0.05f;
+      float textY = (border * 0.5f  ); 
+      fill(color(0, 0, 180));
+      rect(width*0.3, 50, width*0.4, yspeed, 10);
+      fill(255);
+      textSize(30);
+      text(data.get(index).game, width * 0.5f, textY + 50);
+      textSize(20);
+      text("Highest Peak of Players:" + data.get(index).players, width * 0.5f, border * 1.5f + 50);
+      fill(data.get(index).colour);
+      float x = index * gap;
+      rect(x-gap*0.25, height, gap+gap*0.5, - (data.get(index).players * scaleFactor));
+      println(yspeed);
+    }
   }
 }
 
@@ -101,10 +234,11 @@ void drawBarGraph()
 void drawTrendLineGraph(ArrayList<Steam> data, String title)
 {
   background(0);
-  float border = width * 0.05f;
-  // Print the text 
+  backtomenu();
+  float border = width * 0.05f; 
   textAlign(CENTER, CENTER);   
   float textY = (border * 0.5f); 
+  fill(255);
   text("Steam Graph", width * 0.5f, textY);
 
   drawAxis(border);   
@@ -119,10 +253,17 @@ void drawTrendLineGraph(ArrayList<Steam> data, String title)
     float x2 = map(i, 0, data.size(), border, border + windowRange);
     float y1 = map(data.get(i - 1).players, 0, dataRange, height - border, (height - border) - windowRange);
     float y2 = map(data.get(i).players, 0, dataRange, height - border, (height - border) - windowRange);
+    fill(255);
     ellipse(x1, y1, 5, 5);
     line(x1, y1, x2, y2);
+    if (mouseX >= x1 && mouseX <= x2  )
+    {
+      text(data.get(i).game, width*0.5, height*0.25);
+      text(data.get(i).players, width*0.5, height*0.35);
+      fill(color(255, 0, 0));
+      ellipse(x1, y1, 10, 10);
+    }
   }
-
   if (mousePressed)
   {
   }
@@ -143,112 +284,11 @@ void drawAxis(float border)
   line(border, border, border, height - border);
 }
 
-//added startup
-int option = 0;
-void drawmenu()
-{
-  background(255);
-  textAlign(CENTER, CENTER);
-  //option 1
-  fill(color(200, 0, 0));
-  rect(width*0.25, height*0.1, width*0.50, 100);
-  fill(180);
-  textSize(40);
-  text("Menu", width * 0.5f, height*0.1+50);
-  //option 1
-  fill(color(200, 0, 0));
-  rect(width*0.25, height*0.3, width*0.50, 100);
-  fill(180);
-  textSize(40);
-  text("Bar Graph", width * 0.5f, height*0.3+50);
-
-  //option 2
-  fill(color(200, 0, 0));
-  rect(width*0.25, height*0.5, width*0.50, 100);
-  fill(180);
-  textSize(40);
-  text("Statistics", width * 0.5f, height*0.5+50);
-
-  //option 3
-  fill(color(200, 0, 0));
-  rect(width*0.25, height*0.7, width*0.50, 100);
-  fill(180);
-  textSize(40);
-  text("List of Data", width * 0.5f, height*0.7+50);
-
-  println(mouseY);
-  if (mouseX >= width*0.25 && mouseX <= width*0.50 )
-  {
-    //option 1
-    if (mouseY >= height*0.3 && mouseY <= (height*0.3)+100 )
-    {
-      fill(color(255, 0, 0));
-      rect(width*0.225, height*0.275, width*0.55, 130);
-      fill(180);
-      textSize(50);
-      text("Bar Graph", width * 0.5f, height*0.3+50);
-      if (mousePressed)
-      {
-        option = 1;
-      }
-    }
-    //option 2
-    if (mouseY >= height*0.5 && mouseY <= (height*0.5)+100 )
-    {
-      fill(color(255, 0, 0));
-      rect(width*0.225, height*0.475, width*0.55, 130);
-      fill(180);
-      textSize(50);
-      text("Statistics", width * 0.5f, height*0.5+50);
-      if (mousePressed)
-      {
-        option = 2;
-      }
-    }
-    //option 3
-    if (mouseY >= height*0.7 && mouseY <= (height*0.7)+100 )
-    {
-      fill(color(255, 0, 0));
-      rect(width*0.225, height*0.675, width*0.55, 130);
-      fill(180);
-      textSize(50);
-      text("List of data", width * 0.5f, height*0.7+50);
-      if (mousePressed)
-      {
-        option = 3;
-      }
-    }
-  }
-}
-
-
-//back to menu 
-void backtomenu()
-{
-  textAlign(CENTER, CENTER);
-  //exit option
-  fill(color(200, 0, 0));
-  rect(width*0.9, 0, width*0.1, height*0.075);
-  fill(255);
-  textSize(20);
-  text("menu", width*0.95, width*0.022);
-  if (mouseX >= width*0.9 && mouseY <= height*0.075)
-  {
-    fill(color(255, 0, 0));
-    rect(width*0.9, 0, width*0.1, height*0.075);
-    fill(255);
-    textSize(20);
-    text("menu", width*0.95, width*0.022);
-    if (mousePressed)
-    {
-      option = 0;
-    }
-  }
-}
 
 //show statistic option
 void statistics()
 {
+  backtomenu();
   background(255);
 
   //makes the nav bar  
@@ -257,6 +297,7 @@ void statistics()
     fill(0);
     rect(i*(width*0.2), 0, width*0.2, height*0.1);
   }
+
   //label the nav bar
   fill(255);
   textSize(30);
@@ -265,6 +306,7 @@ void statistics()
   text("Option 3", width*0.5, height*0.050);
   text("Option 4", width*0.7, height*0.050);
   text("menu", width*0.9, height*0.050);
+
   //detects nav bar
   if (mouseY <= height*0.1 && mouseX <= width*0.2)
   {
@@ -370,6 +412,8 @@ void datalist()
 
 int pageoption = 0;
 int checker = 11;
+
+//showing the data
 void showdata()
 {  
   if ( keyPressed )
@@ -429,4 +473,27 @@ void showdata()
   println(pageoption);
   backtomenu();
 }
+
+void BubbleSort( ArrayList<Steam> sorted )
+{
+  int j;
+  boolean flag = true;   // set flag to true to begin first pass
+  int temp;   //holding variable
+
+  while ( flag )
+  {
+    flag= false;    //set flag to false awaiting a possible swap
+    for ( j=0; j < sorted.size()-1; j++ )
+    {
+      if ( sorted.get(j).players < sorted.get(j+1).players )   // change to > for ascending sort
+      {
+        temp = sorted.get(j).players;               //swap elements
+        sorted.get(j).players = sorted.get(j+1).players;
+        sorted.get(j+1).players = temp;
+        
+        flag = true;              //shows a swap occurred
+      }
+    }
+  }
+} 
 

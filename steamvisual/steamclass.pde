@@ -9,6 +9,6 @@ class Steam
     String[] parts = line.split(",");
     game = parts[0];
     players = Integer.parseInt(parts[1]);
-    colour = color(color(0,0,200));
+    colour = color(random(180),random(180),random(180));
   }
 }
