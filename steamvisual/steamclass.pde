@@ -2,6 +2,7 @@ class Steam
 {
   String game;
   int players;
+  String link;
   color colour;
   
   Steam(String line)
@@ -10,5 +11,6 @@ class Steam
     game = parts[0];
     players = Integer.parseInt(parts[1]);
     colour = color(random(180),random(180),random(180));
+    link = parts[2];
   }
 }

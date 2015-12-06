@@ -107,6 +107,7 @@ void drawmenu()
       if (mousePressed)
       {
         option = 3;
+        delay(500);
       }
     }
   }
@@ -118,17 +119,17 @@ void backtomenu()
   textAlign(CENTER, CENTER);
   //exit option
   fill(color(200, 0, 0));
-  rect(width*0.9-15, 15, width*0.1, height*0.075, 10);
+  rect(width*0.9-10, 7.5, width*0.1, height*0.075, 10);
   fill(255);
   textSize(20);
-  text("menu", width*0.95-15, width*0.022+16);
-  if (mouseX >= width*0.9-15 && mouseY <= height*0.075+15 && mouseY >= 10 )
+  text("menu", width*0.95-10, width*0.022+10);
+  if (mouseX >= width*0.9-10 && mouseY <= height*0.075+10 && mouseY >= 10 )
   {
     fill(color(255, 0, 0));
-    rect(width*0.9-17.5, 10, width*0.1+7.5, height*0.075+7.5, 10);
+    rect(width*0.9-12.5, 5, width*0.1+5, height*0.075+5, 10);
     fill(255);
     textSize(20);
-    text("menu", width*0.95-15, width*0.022+16);
+    text("menu", width*0.95-10, width*0.022+10);
     if (mousePressed)
     {
       option = 0;
@@ -247,7 +248,7 @@ void drawTrendLineGraph(ArrayList<Steam> data, String title)
   float lineWidth =  windowRange / (float) (data.size() - 1) ;
 
   stroke(180);
-  for (int i = 1; i < data.size (); i ++)
+  for (int i = 1; i < data.size(); i ++)
   {
     float x1 = map(i - 1, 0, data.size(), border, border + windowRange);
     float x2 = map(i, 0, data.size(), border, border + windowRange);
@@ -256,23 +257,14 @@ void drawTrendLineGraph(ArrayList<Steam> data, String title)
     fill(255);
     ellipse(x1, y1, 5, 5);
     line(x1, y1, x2, y2);
-    if (mouseX >= x1 && mouseX <= x2  )
+    if (mouseX >= x1 && mouseX <= x2 && mouseY >= y1 )
     {
       text(data.get(i).game, width*0.5, height*0.25);
       text(data.get(i).players, width*0.5, height*0.35);
       fill(color(255, 0, 0));
-      ellipse(x1, y1, 10, 10);
+      ellipse(x1, y1, 15, 15);
     }
   }
-  if (mousePressed)
-  {
-  }
-  float currentX = map(mouseY, height-border, 0, border, 1000000);
-  float currentY = map(mouseX, 0, width-border, border, 1000000);
-  int index = (int) Math.round(currentX/lineWidth);
-  println(currentX);
-  println(currentY);
-  println(index);
 }
 
 // draw axis for trend graph
@@ -406,8 +398,8 @@ void datalist()
   fill(255);
   rect(0, 0, width, gap);
   fill(0);
-  text("Game", width*0.25, 25);
-  text("Peaked Players", width*0.75, 25);
+  text("Game", width*0.15, 25);
+  text("Peaked Players", width*0.35, 25);
 }
 
 int pageoption = 0;
@@ -454,46 +446,57 @@ void showdata()
   int i, j;
   for ( i = 1+ (pageoption*9), j = 0; i < (pageoption*9)+checker; i++, j++)
   {
-    fill(255);
-    rect(0, j*(gap), width*0.5, gap);
-    rect(width*0.5, j*(gap), width*0.5, gap);
     fill(0);
+    rect(0, j*(gap), width*0.30, gap);
+    rect(width*0.30, j*(gap), width*0.30, gap); 
+    rect(width*0.60, j*(gap), width*0.40, gap); 
+    fill(255);
+    //game & players
     textSize(20);
-    text(data.get(i-1).game, width*0.25, j*gap+25);
-    text(data.get(i-1).players, width*0.75, j*gap+25);
+    text(data.get(i-1).game, width*0.15, j*gap+25);
+    text(data.get(i-1).players, width*0.45, j*gap+25);
+    //links
+    textSize(10);
+    text(data.get(i-1).link, width*0.80, j*gap+25);
   }
+
+  //header 
   fill(255);
   rect(0, 0, width, gap);
   fill(255);
-  rect(0, 0, width*0.5, gap);
-  rect(width*0.5, 0, width*0.5, gap);
+  rect(0, 0, width*0.30, gap);
+  rect(width*0.30, 0, width*0.30, gap);
   fill(0);
-  text("Game", width*0.25, 25);
-  text("Peaked Players", width*0.75, 25);
+  textSize(20);
+  text("Game", width*0.15, 25);
+  text("Peaked Players", width*0.45, 25);
+  text("Link", width*0.80, 25);
   println(pageoption);
   backtomenu();
-}
 
-void BubbleSort( ArrayList<Steam> sorted )
-{
-  int j;
-  boolean flag = true;   // set flag to true to begin first pass
-  int temp;   //holding variable
-
-  while ( flag )
+  int index = (int) Math.round(((mouseY+30)/gap));
+  
+  if(index <= 1)
   {
-    flag= false;    //set flag to false awaiting a possible swap
-    for ( j=0; j < sorted.size()-1; j++ )
+    
+  }
+  else
+  {
+    //changing the color when it hovers
+    fill(255,69,0);
+    rect(0, (index-1)*gap, width*0.30, gap);
+    rect(width*0.30,(index-1)*gap, width*0.30, gap); 
+    rect(width*0.60,(index-1)*gap, width*0.40, gap);
+    textSize(20);
+    fill(0);
+    text(data.get((pageoption*9)+index-1).game, width*0.15, (index-1)*gap+25);
+    text(data.get((pageoption*9)+index-1).players, width*0.45, (index-1)*gap+25);
+    //links
+    textSize(10);
+    text(data.get((pageoption*9)+index-1).link, width*0.80, (index-1)*gap+25);
+    if(mousePressed)
     {
-      if ( sorted.get(j).players < sorted.get(j+1).players )   // change to > for ascending sort
-      {
-        temp = sorted.get(j).players;               //swap elements
-        sorted.get(j).players = sorted.get(j+1).players;
-        sorted.get(j+1).players = temp;
-        
-        flag = true;              //shows a swap occurred
-      }
+      link(data.get((pageoption*9)+index-1).link);
     }
   }
-} 
-
+}
