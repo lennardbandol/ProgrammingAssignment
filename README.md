@@ -1,5 +1,5 @@
 # OOP - Assignment
 
-for my oop Assignment i will be visualising the SteamData.Csv file that i have created.
-It contains the name of the game and its highest player peak it ever achieved in steam.
-My plan is to allow the user see the most popular game and the least popular in the csv file.
+For this assignment I used a barGraph,trend graph and an option to list all of the data in the file.
+The data was made by myself, it contains the name of a steam game,the highest amount of peaked players and the link to its website.
+Theres also a menu option in which the user can just click, theres also an option on the right top corner of each chosen option to go back to the menu.
