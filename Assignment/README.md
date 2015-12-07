@@ -12,7 +12,7 @@ The first option is the BarGraph, The user can hover to the BarGraph and it will
 Each BarGraph have different colours which was randomized in the steamclass.pde. As the user hover on the one of the bars, 
 it will enlarged to let the user clearly see which one hes looking at.
 
-![alt text] (https://github.com/lennardbandol/ProgrammingAssignment/blob/master/Assignment/screenshots/listdata.png "Bar Graph")
+![alt text] (https://github.com/lennardbandol/ProgrammingAssignment/blob/master/Assignment/screenshots/bargraph.png "Bar Graph")
 
 The second option I made a trend graph, it's a bit similar to the BarGraph, the points were also randomized, also as the user
 hover on each point, it will enlarge to define clearly which one the user is pointing at, it will also display the details of the
